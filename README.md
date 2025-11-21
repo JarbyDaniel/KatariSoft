@@ -62,7 +62,6 @@ Katari Society es un grupo de investigación dedicado a la exploración y desarr
 - **Leaflet** - Mapas interactivos
 
 ### Backend & Servicios
-> 📦 **Backend Repository**: [Katari_backend](https://github.com/KatariSociety/Katari_backend) - Desarrollado por [Juanes Yepez](https://github.com/juanesyepez)
 
 - **Node.js** - Servidor backend
 - **Express** - Framework web
@@ -267,7 +266,7 @@ Para solicitudes de uso comercial o permisos especiales, contactar al autor.
 
 ## 👨‍💻 Autores {#author}
 
-**jarbydaniel y Juanes Yepez**
+**Jarby Daniel y Juanes Yepez**
 - GitHub: [@jarbydaniel](https://github.com/jarbydaniel)
 - GitHub: [@juanesyepez](https://github.com/JYPPZ)
 
