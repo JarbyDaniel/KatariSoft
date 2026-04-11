@@ -7,7 +7,7 @@ const MCPChatbot = () => {
     const [messages, setMessages] = useState([]);
     const [inputMessage, setInputMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [ollamaStatus, setOllamaStatus] = useState(null);
+    const [mcpStatus, setMcpStatus] = useState(null);
     const messagesEndRef = useRef(null);
     const sessionId = useRef(`session-${Date.now()}`);
 
@@ -20,29 +20,35 @@ const MCPChatbot = () => {
         scrollToBottom();
     }, [messages]);
 
-    // Verificar estado de Ollama al abrir el chat
+    // Verificar estado de MCP V2 al abrir el chat
     useEffect(() => {
-        if (isOpen && ollamaStatus === null) {
-            checkOllamaStatus();
+        if (isOpen && mcpStatus === null) {
+            checkMCPStatus();
         }
     }, [isOpen]);
 
-    const checkOllamaStatus = async () => {
+    const checkMCPStatus = async () => {
         try {
             const response = await fetch('http://localhost:3000/api/mcp/status');
             const data = await response.json();
-            setOllamaStatus(data);
+            setMcpStatus(data);
             
-            if (!data.available) {
+            if (!data.deepseek?.available) {
                 setMessages([{
                     role: 'system',
-                    content: '⚠️ Ollama no está disponible. Asegúrate de tener Ollama ejecutándose en tu sistema.',
+                    content: '⚠️ DeepSeek API no está disponible. Verifica la configuración de DEEPSEEK_API_KEY.',
+                    timestamp: new Date()
+                }]);
+            } else {
+                setMessages([{
+                    role: 'system',
+                    content: `✅ Sistema MCP V2 conectado con ${data.deepseek.model}. ${data.tools_available} herramientas disponibles.`,
                     timestamp: new Date()
                 }]);
             }
         } catch (error) {
-            console.error('Error al verificar Ollama:', error);
-            setOllamaStatus({ available: false });
+            console.error('Error al verificar MCP:', error);
+            setMcpStatus({ deepseek: { available: false } });
             setMessages([{
                 role: 'system',
                 content: '⚠️ No se pudo conectar con el servidor. Verifica que el backend esté ejecutándose.',
@@ -82,7 +88,7 @@ const MCPChatbot = () => {
                 const assistantMessage = {
                     role: 'assistant',
                     content: data.response,
-                    toolUsed: data.toolUsed,
+                    toolsUsed: data.tools_used, // V2 usa tools_used (plural)
                     timestamp: new Date()
                 };
                 setMessages(prev => [...prev, assistantMessage]);
@@ -121,10 +127,11 @@ const MCPChatbot = () => {
 
     const suggestedQuestions = [
         "¿Cuántos sensores tenemos registrados?",
-        "Muéstrame las últimas lecturas",
-        "¿Cuáles son los eventos recientes?",
-        "Dame estadísticas del sensor de presión",
-        "¿Qué dispositivos tenemos?",
+        "Analiza el último evento de vuelo",
+        "Detecta anomalías en el sensor de temperatura",
+        "¿Hay correlación entre presión y altitud?",
+        "Muéstrame estadísticas del sensor de GPS",
+        "¿Qué dispositivos tenemos activos?",
     ];
 
     return (
@@ -181,13 +188,13 @@ const MCPChatbot = () => {
                                     <h3 className="text-white font-bold">Katari AI Assistant</h3>
                                     <p className="text-xs text-blue-100 flex items-center gap-1">
                                         <Database size={12} />
-                                        Consultas a la Base de Datos
+                                        DeepSeek V2 + Análisis Avanzado
                                     </p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">
-                                {ollamaStatus?.available && (
-                                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" title="Ollama conectado"></div>
+                                {mcpStatus?.deepseek?.available && (
+                                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" title="DeepSeek conectado"></div>
                                 )}
                                 <button
                                     onClick={clearChat}
@@ -209,7 +216,7 @@ const MCPChatbot = () => {
                                 <div className="text-center text-gray-400 mt-8">
                                     <Bot size={64} className="mx-auto mb-4 text-blue-500" />
                                     <p className="mb-4">¡Hola! Soy tu asistente de IA.</p>
-                                    <p className="text-sm mb-4">Puedo ayudarte a consultar la base de datos de telemetría de Katari.</p>
+                                    <p className="text-sm mb-4">Puedo analizar datos de sensores, detectar anomalías y correlaciones.</p>
                                     
                                     <div className="mt-6 space-y-2">
                                         <p className="text-xs font-semibold text-gray-300 mb-2">Preguntas sugeridas:</p>
@@ -244,10 +251,10 @@ const MCPChatbot = () => {
                                                 : 'bg-gray-700 text-gray-100'
                                         }`}
                                     >
-                                        {message.toolUsed && (
+                                        {message.toolsUsed && message.toolsUsed.length > 0 && (
                                             <div className="text-xs text-blue-200 mb-1 flex items-center gap-1">
                                                 <Database size={12} />
-                                                Consultó: {message.toolUsed}
+                                                Herramientas: {message.toolsUsed.join(', ')}
                                             </div>
                                         )}
                                         <p className="text-sm whitespace-pre-wrap">{message.content}</p>
