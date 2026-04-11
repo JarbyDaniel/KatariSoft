@@ -1,4 +1,4 @@
-import { BarChart2, ChevronsLeft, Settings, TrendingUp, TimerReset, Users, Rocket, LogIn } from "lucide-react";
+import { BarChart2, ChevronsLeft, Settings, TrendingUp, TimerReset, Users, Rocket, LogIn, Satellite } from "lucide-react";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
@@ -9,6 +9,7 @@ const Sidebar = ({ basePath = '' }) => {
 
     const SIDEBAR_ITEMS_TOP = [
         { name: "Tiempo Real", icon: TimerReset, color: "#3B82F6", href: `${basePath}/realtime` },
+        { name: "CanSat", icon: Satellite, color: "#10B981", href: `${basePath}/cansat` },
         { name: "Dashboard", icon: TrendingUp, color: "#6366f1", href: `${basePath}/dashboard` },
         { name: "Histórico", icon: BarChart2, color: "#8B5CF6", href: `${basePath}/historical` },
     ];
